@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FaceForge — Facial Transformation System</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><div class="logo-dot"></div>FaceForge<span class="logo-version">v2.0</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active"  onclick="switchNav(this,'upload')">⬆ Upload</button>
+    <button class="nav-tab" onclick="switchNav(this,'landmarks')">⦿ Landmarks</button>
+    <button class="nav-tab" onclick="switchNav(this,'expression')">😊 Expression</button>
+    <button class="nav-tab" onclick="switchNav(this,'aging')">🕐 Aging</button>
+    <button class="nav-tab" onclick="switchNav(this,'frequency')">∿ Frequency</button>
+    <button class="nav-tab" onclick="switchNav(this,'evaluation')">📊 Evaluation</button>
+    <button class="nav-tab" onclick="switchNav(this,'makeup')">💄 Makeup</button>
+    <button class="nav-tab nav-tab-gold" onclick="switchNav(this,'golden')">✦ Golden Ratio</button>
+    <button class="nav-tab nav-tab-shop" onclick="switchNav(this,'shop')">🛍 Shop</button>
+  </div>
+  <div class="topbar-right">
+    <button id="themeToggle" onclick="toggleTheme()" style="background:var(--surface3);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted2);transition:all 0.2s;font-family:'Inter',sans-serif">
+      <span id="themeIcon">☀️</span><span id="themeLabel">Light</span>
+    </button>
+    <div class="status-badge" id="statusBadge"><div class="status-dot"></div><span id="statusText">READY</span></div>
+  </div>
+</div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Pipeline</div>
+      <div class="sidebar-item active" onclick="switchPage('upload');setActive(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Image Upload <span class="sidebar-badge" id="sb-upload">→</span>
+      </div>
+      <div class="sidebar-item" onclick="switchPage('landmarks');setActive(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg>
+        Face Detection <span class="sidebar-badge" id="sb-landmarks">→</span>
+      </div>
+      <div class="sidebar-item" onclick="switchPage('expression');setActive(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        Expression Warp <span class="sidebar-badge" id="sb-expression">→</span>
+      </div>
+      <div class="sidebar-item" onclick="switchPage('aging');setActive(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Aging Simulation <span class="sidebar-badge" id="sb-aging">→</span>
+      </div>
+      <div class="sidebar-item" onclick="switchPage('frequency');setActive(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Frequency Analysis <span class="sidebar-badge">→</span>
+      </div>
+      <div class="sidebar-item" onclick="switchPage('evaluation');setActive(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        Evaluation <span class="sidebar-badge">→</span>
+      </div>
+      <div class="sidebar-item" onclick="switchPage('makeup');setActive(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/></svg>
+        Makeup <span class="sidebar-badge" id="sb-makeup">→</span>
+      </div>
+      <div class="sidebar-item sidebar-item-shop" onclick="switchPage('shop');setActive(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Shop <span class="sidebar-badge" id="sb-shop">NEW</span>
+      </div>
+      <div class="sidebar-item sidebar-item-gold" onclick="switchPage('golden');setActive(this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Golden Ratio <span class="sidebar-badge sidebar-badge-gold" id="sb-golden">OPT</span>
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Info</div>
+      <div class="file-info">
+        <div class="info-row"><span class="info-key">File</span><span class="info-val" id="infName">—</span></div>
+        <div class="info-row"><span class="info-key">Format</span><span class="info-val" id="infFormat">—</span></div>
+        <div class="info-row"><span class="info-key">Size</span><span class="info-val" id="infSize">—</span></div>
+        <div class="info-row"><span class="info-key">Dims</span><span class="info-val" id="infDims">—</span></div>
+        <div class="info-row"><span class="info-key">Backend</span><span class="info-val" id="infBackend" style="color:var(--green)">localhost:5050</span></div>
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Pipeline</div>
+      <div class="pipeline-steps" id="pipelineSteps">
+        <div class="pipeline-step"><div class="step-dot step-pending" id="ps1">1</div><div class="step-label"><strong>Upload</strong>No image</div></div>
+        <div class="pipeline-step"><div class="step-dot step-pending" id="ps2">2</div><div class="step-label"><strong>Landmarks</strong>Waiting</div></div>
+        <div class="pipeline-step"><div class="step-dot step-pending" id="ps3">3</div><div class="step-label"><strong>Transform</strong>Waiting</div></div>
+        <div class="pipeline-step"><div class="step-dot step-pending" id="ps4">4</div><div class="step-label"><strong>Evaluate</strong>Waiting</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- UPLOAD PAGE -->
+    <div class="page-section active" id="page-upload">
+      <div class="section-header">
+        <div><div class="section-title">Image Upload & Preprocessing</div><div class="section-sub">Upload a frontal face image (JPG, PNG)</div></div>
+        <div class="action-row">
+          <button class="btn btn-ghost btn-sm" onclick="openCamera()">📷 Use Camera</button>
+          <button class="btn btn-primary" onclick="document.getElementById('imageInput').click()">⬆ Upload Image</button>
+        </div>
+      </div>
+
+      <!-- Camera Modal -->
+      <div id="cameraModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:999;align-items:center;justify-content:center">
+        <div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px;width:860px;max-width:95vw">
+
+          <!-- Header -->
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px">📷 Camera</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              <button onclick="closeCamera()" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:18px">✕</button>
+            </div>
+          </div>
+
+          <!-- Feeds -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="font-size:11px;color:var(--muted2);font-family:'DM Mono',monospace">LIVE FEED</div>
+              <video id="cameraFeed" autoplay playsinline style="width:100%;border-radius:10px;object-fit:cover;background:#000;border:1px solid var(--border);aspect-ratio:4/3"></video>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="font-size:11px;color:var(--muted2);font-family:'DM Mono',monospace">AR PREVIEW</div>
+                <div id="arStatus" style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace">INACTIVE</div>
+              </div>
+              <div style="position:relative;width:100%;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#0a0c10;border:1px solid var(--border)">
+                <img id="arPreviewImg" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px">
+                <div id="arPreviewPh" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted)">
+                  <span style="font-size:28px">💄</span>
+                  <span style="font-size:11px">Enable Live Makeup Preview</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <canvas id="cameraCanvas" style="display:none"></canvas>
+
+          <!-- Controls -->
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost btn-sm" onclick="flipCamera()">🔄 Flip</button>
+              <span style="font-size:11px;color:var(--muted2);align-self:center">Makeup settings from the Makeup tab apply here</span>
+            </div>
+            <button class="btn btn-primary" onclick="capturePhoto()" style="padding:10px 28px">📸 Capture</button>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('imageInput').click()">
+        <div class="upload-icon">📁</div>
+        <div class="upload-title">Drop your image here or click to browse</div>
+        <div class="upload-sub">Supports JPG, PNG — Frontal face recommended</div>
+        <input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(event)" style="display:none">
+      </div>
+      <div class="image-preview-row" id="previewRow" style="display:none">
+        <div class="img-card">
+          <div class="img-card-header"><span class="img-card-label">ORIGINAL</span><span class="img-card-tag tag-original">INPUT</span></div>
+          <div class="img-card-body"><img id="originalImg" src="" alt="Original"></div>
+        </div>
+        <div class="img-card">
+          <div class="img-card-header"><span class="img-card-label">PREPROCESSED</span><span class="img-card-tag tag-processed">NORMALIZED</span></div>
+          <div class="img-card-body"><img id="processedImg" src="" alt="Preprocessed" style="filter:contrast(1.05) brightness(0.98)"></div>
+        </div>
+      </div>
+      <div class="notification notif-info">ℹ Use a clear, well-lit frontal face image for best results. The backend must be running on localhost:5050.</div>
+    </div>
+
+    <!-- LANDMARKS PAGE -->
+    <div class="page-section" id="page-landmarks">
+      <div class="section-header">
+        <div><div class="section-title">Facial Landmark Detection</div><div class="section-sub">Engine: MediaPipe FaceLandmarker · 478-point mesh · local Python</div></div>
+        <div class="action-row">
+          <button class="btn btn-ghost btn-sm" onclick="toggleLandmarks()">👁 Toggle Overlay</button>
+          <button class="btn btn-primary btn-sm" onclick="runLandmarks()">▶ Detect Landmarks</button>
+        </div>
+      </div>
+      <div class="image-preview-row">
+        <div class="img-card">
+          <div class="img-card-header"><span class="img-card-label">WITH OVERLAY</span><span class="img-card-tag tag-original">MediaPipe</span></div>
+          <div class="img-card-body"><img id="lmOverlayImg" src="" style="display:none;width:100%;height:100%;object-fit:cover">
+            <div class="img-placeholder" id="lmPlaceholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Run detection first</span></div>
+          </div>
+        </div>
+        <div class="img-card">
+          <div class="img-card-header"><span class="img-card-label">GRAYSCALE</span><span class="img-card-tag" style="background:rgba(124,92,252,0.1);color:var(--accent2)">FREQ. READY</span></div>
+          <div class="img-card-body"><img id="grayImg" src="" style="display:none;width:100%;height:100%;object-fit:cover;filter:grayscale(1)">
+            <div class="img-placeholder" id="grayPlaceholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L5 22"/></svg><span>Grayscale preview</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-card m-blue"><div class="metric-label">TOTAL POINTS</div><div class="metric-val" id="metPoints">—</div><div class="metric-sub">MediaPipe Face Mesh</div></div>
+        <div class="metric-card m-green"><div class="metric-label">CONFIDENCE</div><div class="metric-val" id="metConf">—</div><div class="metric-sub">Detection score</div></div>
+        <div class="metric-card m-purple"><div class="metric-label">FACE WIDTH</div><div class="metric-val" id="metW">—</div><div class="metric-sub">Pixels</div></div>
+        <div class="metric-card m-orange"><div class="metric-label">FACE HEIGHT</div><div class="metric-val" id="metH">—</div><div class="metric-sub">Pixels</div></div>
+      </div>
+    </div>
+
+    <!-- EXPRESSION PAGE -->
+    <div class="page-section" id="page-expression">
+      <div class="section-header">
+        <div><div class="section-title">Expression Manipulation</div><div class="section-sub">Engine: MediaPipe FaceLandmarker + OpenCV Delaunay triangulation warp · local Python</div></div>
+        <div class="action-row">
+          <button class="btn btn-ghost btn-sm" onclick="resetExpression()">↺ Reset</button>
+          <button class="btn btn-primary btn-sm" onclick="runExpression()">▶ Apply Warp</button>
+        </div>
+      </div>
+      <div class="controls-grid">
+        <div class="control-card" id="cc-smile">
+          <div class="control-card-header">
+            <div class="control-name"><div class="control-icon icon-green">😊</div>Smile Enhancement</div>
+            <label class="toggle-switch"><input type="checkbox" id="tog-smile" onchange="toggleControl('smile')"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="slider-row"><span class="slider-label">Intensity</span><input type="range" min="0" max="100" value="0" id="sl-smile" oninput="document.getElementById('sv-smile').textContent=this.value+'%'" disabled><span class="slider-val" id="sv-smile">0%</span></div>
+        </div>
+        <div class="control-card" id="cc-eyebrow">
+          <div class="control-card-header">
+            <div class="control-name"><div class="control-icon icon-blue">↑</div>Eyebrow Raising</div>
+            <label class="toggle-switch"><input type="checkbox" id="tog-eyebrow" onchange="toggleControl('eyebrow')"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="slider-row"><span class="slider-label">Height</span><input type="range" min="0" max="100" value="0" id="sl-eyebrow" oninput="document.getElementById('sv-eyebrow').textContent=this.value+'%'" disabled><span class="slider-val" id="sv-eyebrow">0%</span></div>
+        </div>
+        <div class="control-card" id="cc-lips">
+          <div class="control-card-header">
+            <div class="control-name"><div class="control-icon icon-purple">↔</div>Lip Widening</div>
+            <label class="toggle-switch"><input type="checkbox" id="tog-lips" onchange="toggleControl('lips')"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="slider-row"><span class="slider-label">Width</span><input type="range" min="0" max="100" value="0" id="sl-lips" oninput="document.getElementById('sv-lips').textContent=this.value+'%'" disabled><span class="slider-val" id="sv-lips">0%</span></div>
+        </div>
+        <div class="control-card" id="cc-slim">
+          <div class="control-card-header">
+            <div class="control-name"><div class="control-icon icon-orange">◁▷</div>Face Slimming</div>
+            <label class="toggle-switch"><input type="checkbox" id="tog-slim" onchange="toggleControl('slim')"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+          </div>
+          <div class="slider-row"><span class="slider-label">Slim</span><input type="range" min="0" max="100" value="0" id="sl-slim" oninput="document.getElementById('sv-slim').textContent=this.value+'%'" disabled><span class="slider-val" id="sv-slim">0%</span></div>
+        </div>
+      </div>
+      <div class="image-preview-row">
+        <div class="img-card">
+          <div class="img-card-header"><span class="img-card-label">ORIGINAL</span><span class="img-card-tag tag-original">BEFORE</span></div>
+          <div class="img-card-body"><img id="warpOrigImg" src="" style="display:none;width:100%;height:100%;object-fit:cover">
+            <div class="img-placeholder" id="warpOrigPh"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Upload an image first</span></div>
+          </div>
+        </div>
+        <div class="img-card">
+          <div class="img-card-header"><span class="img-card-label">WARPED RESULT</span><span class="img-card-tag tag-processed">AFTER</span></div>
+          <div class="img-card-body"><img id="warpResultImg" src="" style="display:none;width:100%;height:100%;object-fit:cover">
+            <div class="img-placeholder" id="warpResultPh"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg><span>Apply warp to see result</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGING PAGE -->
+    <div class="page-section" id="page-aging">
+      <div class="section-header">
+        <div><div class="section-title">Aging & De-Aging Simulation</div><div class="section-sub">Engine: MediaPipe + OpenCV (pre-process) → fal.ai flux-pro/kontext · Gemini 1.5 Flash (gender detection)</div></div>
+        <div class="action-row">
+          <button class="btn btn-primary btn-sm" onclick="runAging()">▶ Apply Simulation</button>
+        </div>
+      </div>
+
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">⚙ Simulation Mode</div></div>
+        <div class="card-body">
+          <div class="aging-preset-row">
+            <div class="preset-btn active" id="preset-deaging" onclick="selectPreset(this,'deaging',50)">De-Aging −15yr</div>
+            <div class="preset-btn" id="preset-aging40" onclick="selectPreset(this,'aging',40)">Aging +70yr</div>
+          </div>
+        </div>
+      </div>
+      <!-- Hidden elements kept for backward-compat with aging.js -->
+      <div style="display:none">
+        <input type="range" id="sl-aging" value="40">
+        <span id="sv-aging">40%</span>
+        <span id="agingModeLabel">AGING</span>
+        <div id="agingDesc"></div>
+      </div>
+      <div class="image-preview-row">
+        <div class="img-card">
+          <div class="img-card-header"><span class="img-card-label">ORIGINAL</span><span class="img-card-tag tag-original">BASE</span></div>
+          <div class="img-card-body"><img id="agingOrigImg" src="" style="display:none;width:100%;height:100%;object-fit:cover">
+            <div class="img-placeholder" id="agingOrigPh"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Upload an image first</span></div>
+          </div>
+        </div>
+        <div class="img-card">
+          <div class="img-card-header">
+            <span class="img-card-label">RESULT</span>
+            <span class="img-card-tag tag-processed" id="agingResultLabel">SIMULATED</span>
+          </div>
+          <div class="img-card-body"><img id="agingResultImg" src="" style="display:none;width:100%;height:100%;object-fit:cover">
+            <div class="img-placeholder" id="agingResultPh"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Apply simulation to see result</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FREQUENCY PAGE -->
+    <div class="page-section" id="page-frequency">
+      <div class="section-header">
+        <div><div class="section-title">Frequency Domain Analysis</div><div class="section-sub">Engine: NumPy FFT (np.fft.fft2) · 2D Fourier Transform · local Python</div></div>
+        <button class="btn btn-primary btn-sm" onclick="drawSpectrums()">⟳ Recompute</button>
+      </div>
+      <div class="freq-row">
+        <div class="freq-card"><div class="freq-header"><span>ORIGINAL — MAGNITUDE SPECTRUM</span><span style="color:var(--accent)">FFT</span></div><div class="freq-body"><canvas id="specOrig" class="spectrum" width="220" height="220"></canvas></div></div>
+        <div class="freq-card"><div class="freq-header"><span>TRANSFORMED — MAGNITUDE SPECTRUM</span><span style="color:var(--green)">FFT</span></div><div class="freq-body"><canvas id="specTransform" class="spectrum" width="220" height="220"></canvas></div></div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-card m-blue"><div class="metric-label">TOTAL ENERGY (ORIG)</div><div class="metric-val" id="freqEnergyOrig">—</div><div class="metric-sub">Spectral power sum</div></div>
+        <div class="metric-card m-green"><div class="metric-label">TOTAL ENERGY (TRANS)</div><div class="metric-val" id="freqEnergyTrans">—</div><div class="metric-sub">Spectral power sum</div></div>
+        <div class="metric-card m-purple"><div class="metric-label">HF/LF RATIO (ORIG)</div><div class="metric-val" id="freqHFLFOrig">—</div><div class="metric-sub">High vs low frequency</div></div>
+        <div class="metric-card m-orange"><div class="metric-label">HF/LF RATIO (TRANS)</div><div class="metric-val" id="freqHFLFTrans">—</div><div class="metric-sub" id="freqHFLFDelta">Awaiting computation</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📊 Energy Distribution</div></div>
+        <table class="results-table">
+          <thead><tr><th>COMPONENT</th><th>ORIGINAL</th><th>TRANSFORMED</th><th>DELTA</th></tr></thead>
+          <tbody id="freqTableBody">
+            <tr><td colspan="4" style="text-align:center;color:var(--muted2)">Click Recompute to analyze uploaded image</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- EVALUATION PAGE -->
+    <div class="page-section" id="page-evaluation">
+      <div class="section-header">
+        <div><div class="section-title">Quantitative Evaluation</div><div class="section-sub">Engine: NumPy + OpenCV · MSE · PSNR · SSIM metrics · local Python</div></div>
+        <div class="action-row">
+          <button class="btn btn-ghost btn-sm" onclick="exportPDF()">⬇ Export PDF</button>
+          <button class="btn btn-primary btn-sm" id="evalBtn" onclick="runEvaluation()">▶ Evaluate</button>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-card m-blue"><div class="metric-label">MSE</div><div class="metric-val" id="evalMSE">—</div><div class="metric-sub">Mean squared error</div><div class="progress-bar"><div class="progress-fill" id="evalMSEBar" style="width:0%"></div></div></div>
+        <div class="metric-card m-green"><div class="metric-label">PSNR</div><div class="metric-val" id="evalPSNR">—</div><div class="metric-sub">Peak signal-to-noise</div><div class="progress-bar"><div class="progress-fill" id="evalPSNRBar" style="width:0%"></div></div></div>
+        <div class="metric-card m-purple"><div class="metric-label">SSIM</div><div class="metric-val" id="evalSSIM">—</div><div class="metric-sub">Structural similarity</div><div class="progress-bar"><div class="progress-fill" id="evalSSIMBar" style="width:0%"></div></div></div>
+        <div class="metric-card m-orange"><div class="metric-label">STATUS</div><div class="metric-val" id="evalStatus">—</div><div class="metric-sub">Quality assessment</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📋 Results Table</div></div>
+        <table class="results-table">
+          <thead><tr><th>TRANSFORMATION</th><th>MSE ↓</th><th>PSNR (dB) ↑</th><th>SSIM ↑</th><th>STATUS</th></tr></thead>
+          <tbody id="evalTableBody">
+            <tr><td colspan="5" style="text-align:center;color:var(--muted2)">Apply a transformation then click Evaluate</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="notification notif-info" id="evalNotif">ℹ Upload an image, apply a transformation (Expression / Aging / Makeup), then click Evaluate.</div>
+    </div>
+
+    <!-- MAKEUP PAGE -->
+    <div class="page-section" id="page-makeup">
+      <div class="section-header">
+        <div><div class="section-title">💄 Makeup Studio</div><div class="section-sub">Engine: MediaPipe FaceLandmarker + OpenCV (image) · MediaPipe + Canvas (live preview)</div></div>
+        <div class="action-row">
+          <button class="btn btn-ghost btn-sm" onclick="resetMakeup()">↺ Reset</button>
+          <button class="btn btn-ghost btn-sm" onclick="startMakeupLive()">📷 Live Preview</button>
+          <button class="btn btn-primary" onclick="runMakeup()">▶ Apply Makeup</button>
+        </div>
+      </div>
+
+      <!-- Presets -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">✨ Quick Presets</div></div>
+        <div class="card-body" style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="preset-btn" onclick="applyMakeupPreset('natural')"   style="flex:1;min-width:100px">🌿 Natural</button>
+          <button class="preset-btn" onclick="applyMakeupPreset('glam')"      style="flex:1;min-width:100px">💎 Glam</button>
+          <button class="preset-btn" onclick="applyMakeupPreset('smoky')"     style="flex:1;min-width:100px">🖤 Smoky</button>
+          <button class="preset-btn" onclick="applyMakeupPreset('coral')"     style="flex:1;min-width:100px">🪸 Coral</button>
+          <button class="preset-btn" onclick="applyMakeupPreset('editorial')" style="flex:1;min-width:100px">📸 Editorial</button>
+        </div>
+      </div>
+
+      <!-- Controls: single card, all stacked -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header"><div class="card-title">💄 Controls</div></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+
+          <div class="control-row">
+            <label class="toggle-label" style="min-width:130px">👄 Lip Color</label>
+            <input type="color" id="pick-lipcolor" value="#c0324a" style="width:28px;height:20px;border:none;background:none;cursor:pointer;border-radius:4px">
+            <input type="range" id="sl-lipopacity" min="0" max="100" value="60" style="flex:1" oninput="document.getElementById('sv-lipopacity').textContent=this.value+'%'">
+            <span class="slider-val" id="sv-lipopacity">60%</span>
+          </div>
+
+          <div class="control-row">
+            <label class="toggle-label" style="min-width:130px">✨ Lip Gloss</label>
+            <input type="checkbox" class="toggle" id="tog-lipgloss" onchange="toggleMakeup('lipgloss')">
+            <input type="range" id="sl-lipgloss" min="0" max="100" value="0" disabled style="flex:1" oninput="document.getElementById('sv-lipgloss').textContent=this.value+'%'">
+            <span class="slider-val" id="sv-lipgloss">0%</span>
+          </div>
+
+          <div class="control-row">
+            <label class="toggle-label" style="min-width:130px">👁 Eyeliner</label>
+            <input type="checkbox" class="toggle" id="tog-eyeliner" onchange="toggleMakeup('eyeliner')">
+            <input type="range" id="sl-eyeliner" min="0" max="100" value="0" disabled style="flex:1" oninput="document.getElementById('sv-eyeliner').textContent=this.value+'%'">
+            <span class="slider-val" id="sv-eyeliner">0%</span>
+          </div>
+
+          <div class="control-row">
+            <label class="toggle-label" style="min-width:130px">🌸 Blush</label>
+            <input type="checkbox" class="toggle" id="tog-blush" onchange="toggleMakeup('blush')">
+            <input type="color" id="pick-blush" value="#e06080" style="width:28px;height:20px;border:none;background:none;cursor:pointer;border-radius:4px">
+            <input type="range" id="sl-blush" min="0" max="100" value="0" disabled style="flex:1" oninput="document.getElementById('sv-blush').textContent=this.value+'%'">
+            <span class="slider-val" id="sv-blush">0%</span>
+          </div>
+
+          <div class="control-row">
+            <label class="toggle-label" style="min-width:130px">🫧 Foundation</label>
+            <input type="checkbox" class="toggle" id="tog-foundation" onchange="toggleMakeup('foundation')">
+            <input type="color" id="pick-foundation" value="#f5c5a3" style="width:28px;height:20px;border:none;background:none;cursor:pointer;border-radius:4px">
+            <input type="range" id="sl-foundation" min="0" max="100" value="0" disabled style="flex:1" oninput="document.getElementById('sv-foundation').textContent=this.value+'%'">
+            <span class="slider-val" id="sv-foundation">0%</span>
+          </div>
+
+          <div class="control-row">
+            <label class="toggle-label" style="min-width:130px">⭐ Highlighter</label>
+            <input type="checkbox" class="toggle" id="tog-highlight" onchange="toggleMakeup('highlight')">
+            <input type="range" id="sl-highlight" min="0" max="100" value="0" disabled style="flex:1" oninput="document.getElementById('sv-highlight').textContent=this.value+'%'">
+            <span class="slider-val" id="sv-highlight">0%</span>
+          </div>
+
+          <div class="control-row">
+            <label class="toggle-label" style="min-width:130px">💇 Hair Color</label>
+            <input type="checkbox" class="toggle" id="tog-haircolor" onchange="toggleMakeup('haircolor')">
+            <input type="color" id="pick-haircolor" value="#3d1a0a" style="width:28px;height:20px;border:none;background:none;cursor:pointer;border-radius:4px">
+            <input type="range" id="sl-haircolor" min="0" max="100" value="0" disabled style="flex:1" oninput="document.getElementById('sv-haircolor').textContent=this.value+'%'">
+            <span class="slider-val" id="sv-haircolor">0%</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Live Makeup Camera Card -->
+      <div id="makeupLiveCard" class="card" style="display:none;margin-bottom:16px">
+        <div class="card-header">
+          <div class="card-title">📷 Live Makeup Preview</div>
+          <button class="btn btn-ghost btn-sm" onclick="stopMakeupLive()">✕ Close</button>
+        </div>
+        <div style="position:relative;width:100%;aspect-ratio:4/3;background:#000;border-radius:0 0 12px 12px;overflow:hidden">
+          <video id="makeupLiveVideo" autoplay playsinline muted
+                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+          <canvas id="makeupLiveCanvas"
+                  style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></canvas>
+        </div>
+      </div>
+
+      <!-- Photos: side by side -->
+      <div class="image-preview-row">
+        <div class="img-card">
+          <div class="img-card-header"><span class="img-card-label">ORIGINAL</span><span class="img-card-tag tag-original">BASE</span></div>
+          <div class="img-card-body">
+            <img id="makeupOrigImg" src="" style="display:none;width:100%;height:100%;object-fit:cover">
+            <div class="img-placeholder" id="makeupOrigPh">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              <span>Upload an image first</span>
+            </div>
+          </div>
+        </div>
+        <div class="img-card">
+          <div class="img-card-header"><span class="img-card-label">RESULT</span><span class="img-card-tag" style="background:rgba(192,50,74,0.15);color:#e06080">STYLED</span></div>
+          <div class="img-card-body">
+            <img id="makeupResultImg" src="" style="display:none;width:100%;height:100%;object-fit:cover">
+            <div class="img-placeholder" id="makeupResultPh">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <span>Apply makeup to see result</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="page-section" id="page-golden">
+      <div class="section-header">
+        <div><div class="section-title" style="color:var(--gold)">✦ Golden Ratio Analysis</div><div class="section-sub">Engine: MediaPipe FaceLandmarker + Python φ math · local · φ = 1.618</div></div>
+        <button class="btn btn-gold" onclick="runGoldenRatio()">✦ Analyze Face</button>
+      </div>
+
+      <div class="image-preview-row">
+        <div class="img-card">
+          <div class="img-card-header"><span class="img-card-label">YOUR FACE</span><span class="img-card-tag tag-original">INPUT</span></div>
+          <div class="img-card-body"><img id="goldenOrigImg" src="" style="display:none;width:100%;height:100%;object-fit:cover">
+            <div class="img-placeholder" id="goldenOrigPh"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Upload an image first</span></div>
+          </div>
+        </div>
+        <div class="img-card">
+          <div class="img-card-header"><span class="img-card-label">GOLDEN RATIO OVERLAY</span><span class="img-card-tag" style="background:rgba(201,160,60,0.15);color:var(--gold)">φ GRID</span></div>
+          <div class="img-card-body"><img id="goldenOverlayImg" src="" style="display:none;width:100%;height:100%;object-fit:cover">
+            <div class="img-placeholder" id="goldenOverlayPh"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Run analysis to see overlay</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overall score -->
+      <div class="card" id="goldenScoreCard" style="display:none">
+        <div class="card-header">
+          <div class="card-title" style="color:var(--gold)">✦ Overall Golden Ratio Score</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2)">φ = 1.6180</div>
+        </div>
+        <div class="card-body" style="display:flex;align-items:center;gap:24px">
+          <div style="text-align:center;min-width:120px">
+            <div style="font-family:'Syne',sans-serif;font-size:52px;font-weight:800;color:var(--gold)" id="goldenOverallScore">—</div>
+            <div style="font-size:11px;color:var(--muted2)">out of 100</div>
+          </div>
+          <div style="flex:1">
+            <div style="height:10px;border-radius:5px;background:var(--border2);overflow:hidden;margin-bottom:8px">
+              <div id="goldenScoreBar" style="height:100%;border-radius:5px;background:linear-gradient(90deg,var(--gold),#e8c84a);width:0%;transition:width 1.2s ease"></div>
+            </div>
+            <div style="font-size:12px;color:var(--text)" id="goldenScoreDesc">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ratio breakdown -->
+      <div class="card" id="goldenBreakdownCard" style="display:none">
+        <div class="card-header"><div class="card-title">📐 Ratio Breakdown</div></div>
+        <table class="results-table" id="goldenTable">
+          <thead><tr><th>MEASUREMENT</th><th>YOUR RATIO</th><th>IDEAL (φ)</th><th>SCORE</th></tr></thead>
+          <tbody id="goldenTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Measurements -->
+      <div class="card" id="goldenMeasCard" style="display:none">
+        <div class="card-header"><div class="card-title">📏 Face Measurements</div></div>
+        <div class="card-body">
+          <div class="metrics-row" id="goldenMetrics"></div>
+        </div>
+      </div>
+
+      <!-- Golden Warp -->
+      <div class="card" id="goldenWarpCard" style="display:none">
+        <div class="card-header">
+          <div class="card-title" style="color:var(--gold)">✦ Optimize Toward Golden Ratio</div>
+          <button class="btn btn-gold" onclick="runGoldenWarp()" id="goldenWarpBtn">✦ Warp to φ</button>
+        </div>
+        <div class="card-body">
+          <div style="font-size:11px;color:var(--muted2);margin-bottom:12px">
+            Reshapes the face so every measured ratio moves toward its golden-ratio ideal.
+          </div>
+          <div class="image-preview-row">
+            <div class="img-card">
+              <div class="img-card-header"><span class="img-card-label">ORIGINAL</span><span class="img-card-tag tag-original">INPUT</span></div>
+              <div class="img-card-body"><img id="goldenWarpOrigImg" src="" style="display:none;width:100%;height:100%;object-fit:cover">
+                <div class="img-placeholder" id="goldenWarpOrigPh"><span>Upload an image first</span></div>
+              </div>
+            </div>
+            <div class="img-card">
+              <div class="img-card-header"><span class="img-card-label">φ-WARPED RESULT</span><span class="img-card-tag" style="background:rgba(201,160,60,0.15);color:var(--gold)">OPTIMIZED</span></div>
+              <div class="img-card-body"><img id="goldenWarpResultImg" src="" style="display:none;width:100%;height:100%;object-fit:cover">
+                <div class="img-placeholder" id="goldenWarpResultPh"><span>Click "Warp to φ" to generate</span></div>
+              </div>
+            </div>
+          </div>
+          <div id="goldenWarpScoreRow" style="display:none;margin-top:16px">
+            <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--gold)" id="goldenWarpNewScore">—</div>
+            <div style="font-size:11px;color:var(--muted2);margin-top:4px">target score (intended geometry)</div>
+            <div style="font-size:11px;color:var(--muted2);margin-top:6px" id="goldenWarpMeasuredScore"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHOP PAGE -->
+    <div class="page-section" id="page-shop">
+
+      <!-- Header -->
+      <div class="section-header">
+        <div>
+          <div class="section-title">🛍 Virtual Try-On Shop</div>
+          <div class="section-sub">Engine: MediaPipe FaceLandmarker + ImageSegmenter · in-browser JS · no backend</div>
+        </div>
+        <div class="action-row">
+          <div id="shopStatusBar" style="display:none;font-size:11px;font-family:'DM Mono',monospace;padding:4px 10px;border-radius:6px;background:var(--surface3);border:1px solid var(--border2)"></div>
+          <button class="btn btn-ghost btn-sm" onclick="window.shopCapturePhoto()">📸 Capture</button>
+          <button class="btn btn-ghost btn-sm" style="position:relative" onclick="window.shopOpenCart()">
+            🛒 Cart
+            <span id="shopCartBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:var(--accent);color:white;border-radius:50%;width:16px;height:16px;font-size:10px;align-items:center;justify-content:center;font-family:'DM Mono',monospace">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Category tabs -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="shop-cat-btn active" data-cat="glasses"   onclick="window.shopSwitchCategory('glasses')">👓 Glasses</button>
+        <button class="shop-cat-btn"        data-cat="earrings"  onclick="window.shopSwitchCategory('earrings')">💎 Earrings</button>
+        <button class="shop-cat-btn"        data-cat="necklaces" onclick="window.shopSwitchCategory('necklaces')">📿 Necklaces</button>
+      </div>
+
+      <!-- Camera + cart layout -->
+      <div style="display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start">
+
+        <!-- Camera -->
+        <div class="card" style="overflow:hidden">
+          <div class="card-header">
+            <div class="card-title">📷 Live Try-On</div>
+            <span style="font-size:10px;color:var(--muted2);font-family:'DM Mono',monospace">Click a product below to wear it</span>
+          </div>
+          <div style="position:relative;width:100%;background:#000;aspect-ratio:4/3;overflow:hidden">
+            <video id="shopVideo" autoplay playsinline muted
+                   style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+            </video>
+            <canvas id="shopCanvas"
+                    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+            </canvas>
+            <div id="shopVideoPlaceholder"
+                 style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--muted);pointer-events:none">
+              <span style="font-size:36px">📷</span>
+              <span style="font-size:12px">Camera starts when you open this tab</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cart panel -->
+        <div class="card" id="shopCartPanel">
+          <div class="card-header"><div class="card-title">🛒 Cart</div></div>
+          <div class="card-body" id="shopCartBody" style="display:flex;flex-direction:column;gap:8px">
+            <div style="color:var(--muted2);font-size:12px;text-align:center;padding:20px">Your cart is empty</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product grid -->
+      <div class="card">
+        <div class="card-header"><div class="card-title" id="shopGridTitle">👓 Glasses</div></div>
+        <div class="card-body" id="shopProductGrid"
+             style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+        </div>
+      </div>
+
+      <!-- Captured photos -->
+      <div id="shopCaptureArea"
+           style="display:none;gap:10px;flex-wrap:wrap;padding:4px 0">
+      </div>
+
+    </div><!-- end page-shop -->
+
+  </div>
+
+  <!-- SHOP: Fal modal (convince me / checkout) -->
+  <div id="shopFalModal"
+       style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:1000;align-items:center;justify-content:center">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px;width:500px;max-width:95vw;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span id="shopFalTitle" style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px"></span>
+        <button onclick="window.shopCloseFalModal()" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:18px">✕</button>
+      </div>
+      <div id="shopFalSpinner"
+           style="display:none;align-items:center;justify-content:center;gap:12px;padding:40px 0;color:var(--muted2);font-size:13px">
+        <div style="width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite"></div>
+        Generating with fal.ai…
+      </div>
+      <img id="shopFalImage" src="" style="display:none;width:100%;border-radius:10px;object-fit:cover;max-height:420px">
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="panel-section">
+      <div class="panel-section-title">Landmark Regions</div>
+      <div class="landmark-list">
+        <div class="landmark-item"><span class="landmark-name">Left Eye</span><span class="landmark-count">33 pts</span></div>
+        <div class="landmark-item"><span class="landmark-name">Right Eye</span><span class="landmark-count">33 pts</span></div>
+        <div class="landmark-item"><span class="landmark-name">Eyebrows</span><span class="landmark-count">20 pts</span></div>
+        <div class="landmark-item"><span class="landmark-name">Nose</span><span class="landmark-count">48 pts</span></div>
+        <div class="landmark-item"><span class="landmark-name">Mouth</span><span class="landmark-count">40 pts</span></div>
+        <div class="landmark-item"><span class="landmark-name">Face Contour</span><span class="landmark-count">72 pts</span></div>
+        <div class="landmark-item"><span class="landmark-name">Other</span><span class="landmark-count">222 pts</span></div>
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="panel-section">
+      <div class="panel-section-title">Golden Ratio Results</div>
+      <div id="goldenSidePanel" style="font-size:11px;color:var(--muted2)">Run analysis to see results.</div>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/main.js"></script>
+<script src="js/upload.js"></script>
+<script src="js/camera.js"></script>
+<script src="js/landmarks.js"></script>
+<script src="js/expression.js"></script>
+<script src="js/aging.js"></script>
+<script src="js/frequency.js"></script>
+<script src="js/evaluation.js"></script>
+<script src="js/makeup.js"></script>
+<script src="js/golden.js"></script>
+<script src="js/shop.js"></script>
+<script>
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('themeIcon').textContent  = isLight ? '🌙' : '☀️';
+  document.getElementById('themeLabel').textContent = isLight ? 'Dark' : 'Light';
+  localStorage.setItem('ff-theme', isLight ? 'light' : 'dark');
+}
+// Restore saved preference
+(function() {
+  if (localStorage.getItem('ff-theme') === 'light') {
+    document.body.classList.add('light');
+    document.getElementById('themeIcon').textContent  = '🌙';
+    document.getElementById('themeLabel').textContent = 'Dark';
+  }
+})();
+</script>
+</body>
+</html>
